@@ -2,7 +2,7 @@
     "name": "htmldiff",
     "version": "0.0.4",
     "description": "HTML Diffing in JavaScript (CoffeeScript)",
-    "main": "htmldiff.js",
+    "main": "js/htmldiff.js",
     "scripts": {
         "test": "mocha -R min"
     },
@@ -18,9 +18,7 @@
         "htmldiff",
         "html"
     ],
-    "dependencies": {
-        "coffee-script": "*"
-    },
+    "dependencies": {},
     "devDependencies": {
         "chai": "*",
         "mocha": "*"
