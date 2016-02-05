@@ -1,3 +1,8 @@
+#Woodwing's changes
+[See wiki page](https://github.com/WoodWing/htmldiff.js/wiki)
+
+----
+
 # htmldiff.js
 ### HTML Diffing in JavaScript
 
@@ -8,18 +13,6 @@
 
 This is diffing that understands HTML. Best suited for cases when you
 want to show a diff of user-generated HTML (like from a wysiwyg editor).
-
-##Changes made by Woodwing
-Add the htmldiff fork to your bower.json file
-
-```javascript
- "htmldiff": "~0.0.4"
-```
-Then run:
-
-```javascript
- bower install --save-dev
-```
 
 ##Usage
 You use it like this:
