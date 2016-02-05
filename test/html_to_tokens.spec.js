@@ -88,5 +88,10 @@ describe('html_to_tokens', function(){
       expect(cut('<p><script>console.log("hi");</script></p>'))
       .eql(['<p>', '<script>console.log("hi");</script>', '</p>']);
     });
+
+    it('should identify a figure tag as a single token', function(){
+      expect(cut('<p><figure><div style="background-image: url("//link_to_an_image.jpg");></div></figure></p>'))
+          .eql(['<p>', '<figure><div style="background-image: url("//link_to_an_image.jpg");></div></figure>', '</p>']);
+    });
   }); // describe('when encountering atomic tags')
 }); // describe('html_to_tokens')
