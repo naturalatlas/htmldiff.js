@@ -10,11 +10,10 @@ This is diffing that understands HTML. Best suited for cases when you
 want to show a diff of user-generated HTML (like from a wysiwyg editor).
 
 ##Changes made by Woodwing
-[x] Add support for bower
 Add the htmldiff fork to your bower.json file
 
 ```javascript
- "htmldiff": "https://github.com/WoodWing/htmldiff.js.git"
+ "htmldiff": "~0.0.4"
 ```
 Then run:
 
