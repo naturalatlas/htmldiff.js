@@ -1,5 +1,5 @@
 {
-    "name": "htmldiff",
+    "name": "@naturalatlas/htmldiff",
     "version": "0.0.4",
     "description": "HTML Diffing in JavaScript (CoffeeScript)",
     "main": "js/htmldiff.js",
