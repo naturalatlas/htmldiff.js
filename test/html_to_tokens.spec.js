@@ -89,9 +89,9 @@ describe('html_to_tokens', function(){
       .eql(['<p>', '<script>console.log("hi");</script>', '</p>']);
     });
 
-    it('should identify a figure tag as a single token', function(){
+    it('should identify a figure tag as a array token', function(){
       expect(cut('<p><figure><div style="background-image: url("//link_to_an_image.jpg");></div></figure></p>'))
-          .eql(['<p>', '<figure><div style="background-image: url("//link_to_an_image.jpg");></div></figure>', '</p>']);
+          .eql(['<p>', '<figure>','<div style="background-image: url("//link_to_an_image.jpg");>','</div>','</figure>', '</p>']);
     });
   }); // describe('when encountering atomic tags')
 }); // describe('html_to_tokens')

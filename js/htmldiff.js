@@ -30,13 +30,38 @@
   function is_end_of_tag(char){
     return char === '>';
   }
+  function component_search_roles(){
+    return [
+      {
+        'not':'',
+        'regex':'slideshow'
+      },
+      {
+        'not':'slideshow',
+        'regex':'(<[^>]+) class="image*?"'
+      },
+      {
+        'not':'slideshow',
+        'regex':'(<[^>]+) class="product-image-part*?"'
+      }
+
+
+    ]
+  }
 
   function is_start_of_tag(char){
     return char === '<';
   }
+  function is_start_of_close_tag(char){
+    return char === '</';
+  }
 
   function is_whitespace(char){
     return /^\s+$/.test(char);
+  }
+
+  function self_closing_tags(token){
+    return /(<img)|(<input)/.test(token);
   }
 
   function is_tag(token){
@@ -58,7 +83,7 @@
    *    null otherwise
    */
   function is_start_of_atomic_tag(word){
-    var result = /^<(iframe|object|math|svg|script|figure)/.exec(word);
+    var result = /^<(iframe|object|math|svg|script)/.exec(word);
     if (result){
       result = result[1];
     }
@@ -115,6 +140,50 @@
     this.length = length;
     this.end_in_before = (this.start_in_before + this.length) - 1;
     this.end_in_after = (this.start_in_after + this.length) - 1;
+  }
+
+  /*
+   * Tokenizes a string of HTML.
+   *
+   * @param {string} html The string to tokenize.
+   *
+   * @return {Array.<string>} The list of tokens.
+   */
+  function merge_html_by_class(find_regex_rules, ignore_regex_rules, words) {
+    var mergedWordsArray = [],
+      mergedWordsToString = '',
+      count_open_tags = 0;
+
+    for (var i = 0; i < words.length; i++) {
+      var tag_part = words[i],
+        find_regex = new RegExp(find_regex_rules,'gi'),
+        isFoundTagPart = find_regex.test(tag_part),
+        ignore_regex,
+        isIgnoreTagPart;
+
+      if(ignore_regex_rules !== ''){
+        ignore_regex = new RegExp(ignore_regex_rules,'gi');
+        isIgnoreTagPart = ignore_regex.test(tag_part);
+      }else{
+        isIgnoreTagPart=false;
+      }
+
+      if (!isIgnoreTagPart && (isFoundTagPart || count_open_tags > 0) ) {
+        if (is_start_of_tag(tag_part.slice(0, 1)) && !is_start_of_close_tag(tag_part.slice(0, 2)) &&  !self_closing_tags(tag_part)) {
+          count_open_tags = count_open_tags + 1;
+        } else if (is_start_of_tag(tag_part.slice(0, 1)) &&  !self_closing_tags(tag_part)) {
+          count_open_tags = count_open_tags - 1;
+        }
+        mergedWordsToString += tag_part;
+
+        if (count_open_tags === 0) {
+          mergedWordsArray.push(mergedWordsToString);
+        }
+      } else {
+        mergedWordsArray.push(tag_part);
+      }
+    }
+    return mergedWordsArray;
   }
 
   /*
@@ -211,6 +280,13 @@
     }
     if (current_word){
       words.push(current_word);
+    }
+
+
+    for (var i = 0; i < component_search_roles().length; i++) {
+      var role = component_search_roles()[i];
+      words=merge_html_by_class(role.regex,role.not, words);
+
     }
     return words;
   }
@@ -612,6 +688,7 @@
   }
 
   diff.html_to_tokens = html_to_tokens;
+  diff.merge_html_by_class = merge_html_by_class;
   diff.find_matching_blocks = find_matching_blocks;
   find_matching_blocks.find_match = find_match;
   find_matching_blocks.create_index = create_index;
