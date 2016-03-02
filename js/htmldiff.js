@@ -170,6 +170,7 @@
         if (count_open_tags === 0) {
           //after parent tag is closed push as one html token
           mergedWordsArray.push(mergedWordsToString);
+          mergedWordsToString = '';
         }
       } else {
         //all tags that are not part of components we wont to merge just ignore
