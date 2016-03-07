@@ -660,7 +660,43 @@
     }
     return rendering;
   }
+  /*
+   * Checking if two object are equals
+   * @param {Object} first object you want to compare.
+   * @param {Object} second object you want to compare.
+   */
+  function isEquivalent(a, b) {
+    // Create arrays of property names
+    var aProps = Object.getOwnPropertyNames(a);
+    var bProps = Object.getOwnPropertyNames(b);
 
+    // If number of properties is different,
+    // objects are not equivalent
+    if (aProps.length != bProps.length) {
+      return false;
+    }
+
+    for (var i = 0; i < aProps.length; i++) {
+      var propName = aProps[i];
+
+      // If values of same property are not equal,
+      // objects are not equivalent
+      if (a[propName] !== b[propName]) {
+        return false;
+      }
+    }
+
+    // If we made it this far, objects
+    // are considered equivalent
+    return true;
+  }
+  /*
+   * @param {Array.<string>} before The before list of tokens.
+   * @param {Array.<string>} after The after list of tokens.
+   * @param {Array.<Object>} operations The list of operations to transform the before
+   *      list of tokens into the after list of tokens, where each operation has the
+   *      following keys:
+   */
   function findComponentWithDifferentContent(ops, before, after) {
     var firstAlwaysEqual = {
       action: "equal",
@@ -680,7 +716,7 @@
         after: []
       };
       /*Equal tokens start re-investigate status action */
-      if (!angular.equals(op, firstAlwaysEqual && op.action === 'equal')) {
+      if (!isEquivalent(op, firstAlwaysEqual && op.action === 'equal')) {
         for (var i = 0; i < before.length; i++) {
           var token = before[i];
           /*Find range equal tokens in before*/
