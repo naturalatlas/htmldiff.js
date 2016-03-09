@@ -66,7 +66,7 @@
    *    null otherwise
    */
   function is_start_of_atomic_tag(word) {
-    var result = /^<(iframe|object|math|svg|script)/.exec(word);
+    var result = /^<(object|math|svg|script)/.exec(word);
     if (result) {
       result = result[1];
     }
@@ -716,11 +716,11 @@
         after: []
       };
       /*Equal tokens start re-investigate status action */
-      if (!isEquivalent(op, firstAlwaysEqual && op.action === 'equal')) {
+      if (!isEquivalent(op, firstAlwaysEqual) && op.action === 'equal') {
         for (var i = 0; i < before.length; i++) {
           var token = before[i];
           /*Find range equal tokens in before*/
-          if (i >= op.start_in_before && i < op.end_in_before) {
+          if (i >= op.start_in_before && i <= op.end_in_before) {
             compare.before.push(token);
           }
         }
@@ -729,7 +729,7 @@
         for (var j = 0; j < after.length; j++) {
           var token = after[j];
           /*Find range equal tokens in before*/
-          if (j >= op.start_in_after && j < op.end_in_after) {
+          if (j >= op.start_in_after && j <= op.end_in_after) {
             compare.after.push(token);
             /*Compare equal tokens in before and after by length size*/
             if (compare.before.length && compare.before[compare.after.length - 1].length !== compare.after[compare.after.length - 1].length) {
