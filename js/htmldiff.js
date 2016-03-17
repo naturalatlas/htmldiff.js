@@ -65,8 +65,12 @@
    * @return {string|null} The name of the atomic tag if the word will be an atomic tag,
    *    null otherwise
    */
+  var atomic_tag='^<(iframe|object|math|svg|script)';
   function is_start_of_atomic_tag(word) {
-    var result = /^<(object|math|svg|script)/.exec(word);
+
+    var find_regex = new RegExp(atomic_tag, 'gi');
+    result= find_regex.exec(word);
+
     if (result) {
       result = result[1];
     }
@@ -758,7 +762,7 @@
    * @return {string} The combined HTML content with differences wrapped in <ins> and <del> tags.
    */
 
-  function diff(before, after, component_search_roles, class_name) {
+  function diff(before, after, component_search_roles, one_step_deeper_in_component, class_name ) {
     if (before === after) return before;
 
     before = html_to_tokens(before, component_search_roles);
@@ -767,13 +771,18 @@
     /*
      * Find all components that was merged by merge_html_by_class() and component_search_roles but with diff content for example caption (captions are ignored in initial component_search_roles)
      */
-    var componentWithDifferentContent = findComponentWithDifferentContent(ops, before, after);
+    var componentWithDifferentContent=[];
+    if(!one_step_deeper_in_component){
+      componentWithDifferentContent = findComponentWithDifferentContent(ops, before, after);
+    }else{
+      atomic_tag='^<(object|math|svg|script)';
+    }
     /*
      * Replace component with different content in initial after and before.
      * They will be ignored because action status is equal */
     for (var i = 0; i < componentWithDifferentContent.length; i++) {
       var compare = componentWithDifferentContent[i];
-      var reRender = diff(compare.before, compare.after, []);
+      var reRender = diff(compare.before, compare.after, [],true);
       before[compare.index] = reRender;
       after[compare.index] = reRender;
     }
