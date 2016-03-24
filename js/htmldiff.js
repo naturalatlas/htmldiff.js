@@ -46,6 +46,9 @@
   function self_closing_tags(token) {
     return /(<img)|(<input)/.test(token);
   }
+  function is_mearge_tag(tag_part) {
+    return /^(?:<(\w+)(?:(?:\s+\w+(?:\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)>[^<>]*<\/\1+\s*>|<\w+(?:(?:\s+\w+(?:\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/>|<!--.*?-->|[^<>]+)*$/.test(tag_part);
+  }
 
   function is_tag(token) {
     return /^\s*<[^>]+>\s*$/.test(token);
@@ -65,7 +68,7 @@
    * @return {string|null} The name of the atomic tag if the word will be an atomic tag,
    *    null otherwise
    */
-  var atomic_tag='^<(iframe|object|math|svg|script)';
+  var atomic_tag='^<(object|math|svg|script)';
   function is_start_of_atomic_tag(word) {
 
     var find_regex = new RegExp(atomic_tag, 'gi');
@@ -153,6 +156,7 @@
           find_regex = new RegExp(find_regex_rules, 'gi'),
           isFoundTagPart = find_regex.test(tag_part),
           ignore_regex,
+          last_count_open_tags,
           isIgnoreTagPart;
       //create regex condition from string for ignoring tags while merging in progress, if condition exist
       if (ignore_regex_rules !== '') {
@@ -163,19 +167,20 @@
       }
       //merge html tags until parent tag is not closed (also ignore self closed html tags)
       if (!isIgnoreTagPart && (isFoundTagPart || count_open_tags > 0)) {
-        if (is_start_of_tag(tag_part.slice(0, 1)) && !is_start_of_close_tag(tag_part.slice(0, 2)) && !self_closing_tags(tag_part)) {
+        if (!is_mearge_tag(tag_part) && is_start_of_tag(tag_part.slice(0, 1)) && !is_start_of_close_tag(tag_part.slice(0, 2)) && !self_closing_tags(tag_part)) {
           count_open_tags = count_open_tags + 1;
-        } else if (is_start_of_tag(tag_part.slice(0, 1)) && !self_closing_tags(tag_part)) {
+        } else if (!is_mearge_tag(tag_part) && is_start_of_tag(tag_part.slice(0, 1)) && !self_closing_tags(tag_part)) {
           count_open_tags = count_open_tags - 1;
         }
         //combine all html string from html tokens while all condition are true
         mergedWordsToString += tag_part;
 
-        if (count_open_tags === 0) {
+        if (last_count_open_tags<=count_open_tags || count_open_tags === 0) {
           //after parent tag is closed push as one html token
           mergedWordsArray.push(mergedWordsToString);
           mergedWordsToString = '';
         }
+        last_count_open_tags=count_open_tags;
       } else {
         //all tags that are not part of components we wont to merge just ignore
         mergedWordsArray.push(tag_part);
@@ -724,7 +729,7 @@
         for (var i = 0; i < before.length; i++) {
           var token = before[i];
           /*Find range equal tokens in before*/
-          if (i >= op.start_in_before && i <= op.end_in_before) {
+          if (i > op.start_in_before && i < op.end_in_before) {
             compare.before.push(token);
           }
         }
@@ -733,7 +738,7 @@
         for (var j = 0; j < after.length; j++) {
           var token = after[j];
           /*Find range equal tokens in before*/
-          if (j >= op.start_in_after && j <= op.end_in_after) {
+          if (j > op.start_in_after && j < op.end_in_after) {
             compare.after.push(token);
             /*Compare equal tokens in before and after by length size*/
             if (compare.before.length && compare.before[compare.after.length - 1].length !== compare.after[compare.after.length - 1].length) {
@@ -774,8 +779,6 @@
     var componentWithDifferentContent=[];
     if(!one_step_deeper_in_component){
       componentWithDifferentContent = findComponentWithDifferentContent(ops, before, after);
-    }else{
-      atomic_tag='^<(object|math|svg|script)';
     }
     /*
      * Replace component with different content in initial after and before.
